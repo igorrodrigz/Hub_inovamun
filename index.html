@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>HUB | Mapa de organizações</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.30.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.30.0/mapbox-gl.js"></script>
+<style>
+    :root {
+        font-family: "DM Sans", sans-serif;
+        color: #172b2a;
+        background: #e8eee9;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        --ink: #172b2a;
+        --muted: #667571;
+        --line: #dce4de;
+        --paper: #fbfcf9;
+        --green: #176b50;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; min-height: 100vh; }
+    button, select { font: inherit; }
+
+    .workspace {
+        display: grid;
+        grid-template-columns: 350px minmax(0, 1fr);
+        min-height: 100vh;
+        padding: 14px;
+        gap: 14px;
+    }
+
+    .panel {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - 28px);
+        padding: 26px 24px 20px;
+        background: var(--paper);
+        border: 1px solid rgba(23, 43, 42, .07);
+        border-radius: 8px;
+        box-shadow: 0 12px 34px rgba(33, 56, 48, .07);
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: var(--green);
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .brand-mark {
+        display: grid;
+        width: 27px;
+        height: 27px;
+        place-items: center;
+        color: #f8f8ec;
+        background: var(--green);
+        border-radius: 7px;
+        font-size: 15px;
+    }
+
+    .eyebrow {
+        margin: 36px 0 9px;
+        color: #9a6a25;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+    }
+
+    h1 {
+        max-width: 270px;
+        margin: 0;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 31px;
+        line-height: 1.08;
+    }
+
+    .intro {
+        margin: 12px 0 22px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .filter-label, .section-label {
+        display: block;
+        margin-bottom: 8px;
+        color: #52615d;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+        position: absolute;
+        top: 12px;
+        right: 14px;
+        color: var(--green);
+        content: "⌄";
+        pointer-events: none;
+    }
+
+    select {
+        width: 100%;
+        height: 43px;
+        padding: 0 38px 0 12px;
+        color: var(--ink);
+        appearance: none;
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    select:focus-visible, button:focus-visible {
+        outline: 2px solid #238465;
+        outline-offset: 2px;
+    }
+
+    .result-line {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin: 24px 0 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .result-line .section-label { margin: 0; }
+    #result-count {
+        color: var(--green);
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+    }
+
+    .legend { display: grid; gap: 13px; }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #43514d;
+        font-size: 12px;
+    }
+
+    .swatch {
+        width: 10px;
+        height: 10px;
+        border: 2px solid white;
+        border-radius: 50%;
+        box-shadow: 0 0 0 1px rgba(23, 43, 42, .2);
+    }
+
+    .company { background: #176b50; }
+    .startup { background: #e49238; }
+    .investor { background: #4479ac; }
+
+    .data-note {
+        margin-top: auto;
+        padding: 12px;
+        color: #40574e;
+        background: #edf3ed;
+        border-left: 3px solid #5d9278;
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .map-frame {
+        position: relative;
+        min-height: calc(100vh - 28px);
+        overflow: hidden;
+        background: #dce8df;
+        border-radius: 8px;
+    }
+
+    #map { position: absolute; inset: 0; }
+
+    .map-message {
+        position: absolute;
+        z-index: 1;
+        top: 50%;
+        left: 50%;
+        width: min(360px, calc(100% - 36px));
+        padding: 16px 18px;
+        color: #43514d;
+        background: rgba(251, 252, 249, .96);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        box-shadow: 0 8px 24px rgba(30, 47, 40, .12);
+        font-size: 13px;
+        line-height: 1.55;
+        text-align: center;
+        transform: translate(-50%, -50%);
+    }
+
+    .map-message[hidden] { display: none; }
+
+    .map-caption {
+        position: absolute;
+        z-index: 1;
+        top: 17px;
+        right: 17px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 12px;
+        color: #3f514b;
+        background: rgba(251, 252, 249, .94);
+        border: 1px solid rgba(23, 43, 42, .08);
+        border-radius: 5px;
+        box-shadow: 0 3px 12px rgba(30, 47, 40, .08);
+        font-size: 11px;
+        pointer-events: none;
+    }
+
+    .live-dot {
+        width: 7px;
+        height: 7px;
+        background: #238465;
+        border-radius: 50%;
+    }
+
+    .mapboxgl-popup-content {
+        min-width: 190px;
+        padding: 13px 15px;
+        border-radius: 6px;
+        font-family: "DM Sans", sans-serif;
+    }
+
+    .popup-name {
+        margin-bottom: 5px;
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .popup-detail { color: var(--muted); font-size: 11px; line-height: 1.6; }
+
+    @media (max-width: 720px) {
+        .workspace { grid-template-columns: 1fr; grid-template-rows: auto minmax(54vh, 1fr); padding: 9px; gap: 9px; }
+        .panel { min-height: auto; padding: 17px; }
+        .eyebrow { margin-top: 20px; }
+        h1 { max-width: none; font-size: 27px; }
+        .intro { margin-bottom: 15px; }
+        .result-line { margin-top: 15px; }
+        .legend { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .legend-item { gap: 7px; font-size: 10px; }
+        .data-note { margin-top: 17px; }
+        .map-frame { min-height: 54vh; }
+        .map-caption { top: 10px; right: 10px; }
+    }
+</style>
+</head>
+<body>
+<main class="workspace">
+    <aside class="panel" aria-label="Filtros do mapa de organizações">
+        <div class="brand"><span class="brand-mark" aria-hidden="true">H</span> HUB TERRITORIAL</div>
+        <p class="eyebrow">Explorar ecossistema</p>
+        <h1>Organizações no território</h1>
+        <p class="intro">Uma leitura geográfica das organizações conectadas aos municípios.</p>
+
+        <label class="filter-label" for="type-filter">Tipo de organização</label>
+        <div class="select-wrap">
+            <select id="type-filter">
+                <option value="TODOS">Todos os tipos</option>
+                <option value="EMPRESA">Empresas</option>
+                <option value="STARTUP">Startups</option>
+                <option value="INVESTIDOR">Investidores</option>
+            </select>
+        </div>
+
+        <div class="result-line">
+            <span class="section-label">No mapa</span>
+            <output id="result-count" aria-live="polite">{{ map_organizations|length }}</output>
+        </div>
+
+        <span class="section-label">Categorias</span>
+        <div class="legend" aria-label="Legenda">
+            <div class="legend-item"><span class="swatch company"></span>Empresa</div>
+            <div class="legend-item"><span class="swatch startup"></span>Startup</div>
+            <div class="legend-item"><span class="swatch investor"></span>Investidor</div>
+        </div>
+
+        <p class="data-note">Localização aproximada por município. O mapa exibe apenas organizações ativas com coordenadas cadastradas.</p>
+    </aside>
+
+    <section class="map-frame" aria-label="Mapa de organizações por município">
+        <div class="map-caption"><span class="live-dot"></span>Brasil · organizações ativas</div>
+        <div id="map" data-mapbox-access-token="{{ mapbox_access_token }}"></div>
+        <div id="map-message" class="map-message" role="status" aria-live="polite" hidden></div>
+    </section>
+</main>
+{{ map_organizations|json_script:"organization-data" }}
+<script>
+    const organizations = JSON.parse(document.querySelector('#organization-data').textContent);
+
+    const colors = {
+        EMPRESA: '#176b50',
+        STARTUP: '#e49238',
+        INVESTIDOR: '#4479ac'
+    };
+    const typeLabels = {
+        EMPRESA: 'Empresa',
+        STARTUP: 'Startup',
+        INVESTIDOR: 'Investidor'
+    };
+
+    let selectedType = 'TODOS';
+    const mapContainer = document.querySelector('#map');
+    const mapMessage = document.querySelector('#map-message');
+    const accessToken = mapContainer.dataset.mapboxAccessToken;
+
+    const getFilteredOrganizations = () => selectedType === 'TODOS'
+        ? organizations
+        : organizations.filter((organization) => organization.type === selectedType);
+
+    const toFeatureCollection = (items) => ({
+        type: 'FeatureCollection',
+        features: items.map((organization) => ({
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: organization.coordinates },
+            properties: {
+                name: organization.name,
+                type: organization.type,
+                city: organization.city,
+                state: organization.state
+            }
+        }))
+    });
+
+    const updateMapMessage = (items) => {
+        if (!accessToken) {
+            mapMessage.textContent = 'Configure a variável API_MAPBOX no arquivo .env para carregar o mapa.';
+            mapMessage.hidden = false;
+        } else if (items.length === 0) {
+            mapMessage.textContent = 'Nenhuma organização com município georreferenciado. Cadastre latitude e longitude no Admin de Municípios.';
+            mapMessage.hidden = false;
+        } else {
+            mapMessage.hidden = true;
+        }
+    };
+
+    const map = accessToken ? new mapboxgl.Map({
+        accessToken,
+        container: 'map',
+        style: 'mapbox://styles/mapbox/standard',
+        center: [-57.0853, -29.7547],
+        zoom: 12,
+        attributionControl: true
+    }) : null;
+
+    if (map) {
+        map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+
+        map.on('load', () => {
+            map.addSource('organizations', {
+                type: 'geojson',
+                data: toFeatureCollection(getFilteredOrganizations())
+            });
+
+            map.addLayer({
+                id: 'organization-points',
+                type: 'circle',
+                source: 'organizations',
+                paint: {
+                    'circle-color': ['match', ['get', 'type'], 'EMPRESA', colors.EMPRESA, 'STARTUP', colors.STARTUP, colors.INVESTIDOR],
+                    'circle-radius': 9,
+                    'circle-stroke-color': '#ffffff',
+                    'circle-stroke-width': 2,
+                    'circle-opacity': 0.95
+                }
+            });
+
+            map.on('click', 'organization-points', (event) => {
+                const feature = event.features[0];
+                const properties = feature.properties;
+                const popup = document.createElement('div');
+                const name = document.createElement('div');
+                const detail = document.createElement('div');
+                name.className = 'popup-name';
+                name.textContent = properties.name;
+                detail.className = 'popup-detail';
+                detail.textContent = `${typeLabels[properties.type] || properties.type} · ${properties.city}/${properties.state}`;
+                popup.append(name, detail);
+
+                new mapboxgl.Popup({ offset: 12 })
+                    .setLngLat(feature.geometry.coordinates)
+                    .setDOMContent(popup)
+                    .addTo(map);
+            });
+
+            map.on('mouseenter', 'organization-points', () => { map.getCanvas().style.cursor = 'pointer'; });
+            map.on('mouseleave', 'organization-points', () => { map.getCanvas().style.cursor = ''; });
+            updateMapMessage(getFilteredOrganizations());
+        });
+    }
+
+    updateMapMessage(getFilteredOrganizations());
+
+    document.querySelector('#type-filter').addEventListener('change', (event) => {
+        selectedType = event.target.value;
+        const filtered = getFilteredOrganizations();
+
+        map?.getSource('organizations')?.setData(toFeatureCollection(filtered));
+        document.querySelector('#result-count').textContent = filtered.length;
+        updateMapMessage(filtered);
+    });
+</script>
+</body>
+</html>
