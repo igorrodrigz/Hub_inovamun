@@ -1,0 +1,16 @@
+{
+  "name": "hub-frontend",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i ./frontend/app.css -o ./hub/core/static/core/css/app.css --minify",
+    "build": "npm run build:css && node frontend/vendor.cjs",
+    "dev": "tailwindcss -i ./frontend/app.css -o ./hub/core/static/core/css/app.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.1.18",
+    "tailwindcss": "4.1.18"
+  },
+  "dependencies": {
+    "htmx.org": "2.0.11"
+  }
+}

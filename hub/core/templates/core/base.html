@@ -1,0 +1,50 @@
+{% load static %}<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Hub | Conectando desafios a possibilidades
+{% endblock %}
+</title>
+<link rel="stylesheet" href="{% static 'core/css/app.css' %}">
+<script defer src="{% static 'core/vendor/htmx.min.js' %}">
+</script>
+<script defer src="{% static 'core/js/app.js' %}">
+</script>
+</head>
+<body hx-history="false" class="min-h-screen flex flex-col">
+<a href="#main" class="sr-only focus:not-sr-only focus:block focus:p-4">Pular para o conteúdo</a>
+<header class="border-b border-stone-200 bg-white">
+<div class="shell flex flex-wrap items-center justify-between gap-5 py-5">
+<a href="{% url 'showcase-home' %}" class="flex items-center gap-3" aria-label="Hub, início">
+<span class="flex h-10 w-10 items-center justify-center rounded-xl bg-hub-700 text-xl font-bold text-white">H</span>
+<span class="text-2xl font-bold tracking-tight">hub<span class="text-hub-700">.</span>
+</span>
+</a>
+<button type="button" data-menu-toggle aria-controls="main-navigation" aria-expanded="false" hidden class="button-secondary md:hidden">Menu</button>
+<nav id="main-navigation" aria-label="Principal" class="flex w-full flex-col gap-5 text-sm font-semibold md:w-auto md:flex md:flex-row md:items-center">
+<a href="{% url 'showcase-list' 'problemas' %}" {% if kind == 'problemas' %}aria-current="page"
+{% endif %}
+>Problemas</a>
+<a href="{% url 'showcase-list' 'solucoes' %}" {% if kind == 'solucoes' %}aria-current="page"
+{% endif %}
+>Soluções</a>
+<a href="{% url 'showcase-list' 'organizacoes' %}" {% if kind == 'organizacoes' %}aria-current="page"
+{% endif %}
+>Organizações</a>
+<a href="{% url 'organization-map' %}" class="text-hub-700">Mapa do ecossistema ↗</a>
+<a href="{% url 'admin:index' %}" class="button-secondary">Gestão</a>
+</nav>
+</div>
+</header>
+<main id="main" class="flex-1" tabindex="-1">{% block content %}
+{% endblock %}
+</main>
+<footer class="mt-16 border-t border-stone-200">
+<div class="shell flex flex-wrap justify-between gap-3 py-7 text-sm text-stone-600">
+<span>Hub Inovamun · Conexões que transformam territórios.</span>
+<span>Ambiente interno da equipe</span>
+</div>
+</footer>
+</body>
+</html>

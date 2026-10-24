@@ -25,3 +25,6 @@ Thumbs.db
 .coverage
 htmlcov/
 .pytest_cache/
+# Frontend build dependencies and local caches
+node_modules/
+.cache/

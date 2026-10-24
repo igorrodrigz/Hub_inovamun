@@ -1,0 +1,64 @@
+{% extends 'core/base.html' %}{% block content %}
+<section class="shell py-14 sm:py-20">
+<div class="grid items-center gap-12 lg:grid-cols-2">
+<div>
+<p class="mb-5 text-xs font-bold uppercase tracking-widest text-hub-700">Ecossistema de inovação municipal</p>
+<h1 class="max-w-2xl text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">Grandes conexões começam com um problema real.</h1>
+<p class="mt-6 max-w-xl text-lg leading-relaxed text-stone-600">Explore desafios dos municípios e descubra organizações com soluções para transformar possibilidades em impacto.</p>
+<div class="mt-8 flex flex-wrap gap-3">
+<a class="button" href="{% url 'showcase-list' 'problemas' %}">Explorar problemas →</a>
+<a class="button-secondary" href="{% url 'showcase-list' 'solucoes' %}">Conhecer soluções</a>
+</div>
+</div>
+<aside class="rounded-3xl bg-hub-900 p-8 text-white sm:p-10" aria-label="Como o Hub conecta">
+<p class="text-sm uppercase tracking-widest text-green-200">Do desafio à possibilidade</p>
+<ol class="mt-8 space-y-7">
+<li>
+<span class="text-xs text-green-200">01 / DESCOBRIR</span>
+<h2 class="mt-2 text-2xl">Um território, um desafio.</h2>
+<p class="mt-2 text-green-100">Problemas reais ganham visibilidade e contexto.</p>
+</li>
+<li class="border-t border-white/20 pt-6">
+<span class="text-xs text-green-200">02 / EXPLORAR</span>
+<h2 class="mt-2 text-2xl">Conhecimento que pode ajudar.</h2>
+<p class="mt-2 text-green-100">Encontre soluções e conheça quem está por trás delas.</p>
+</li>
+<li class="border-t border-white/20 pt-6">
+<span class="text-xs text-green-200">03 / CONECTAR</span>
+<h2 class="mt-2 text-2xl">A equipe aproxima as pontas.</h2>
+<p class="mt-2 text-green-100">Avalie a adequação antes de formalizar uma conexão.</p>
+</li>
+</ol>
+</aside>
+</div>
+</section>
+<section class="shell grid gap-4 sm:grid-cols-3" aria-label="Visão do ecossistema">
+<div class="rounded-xl border border-stone-200 bg-white p-6">
+<p class="text-3xl font-semibold">{{ problem_count }}</p>
+<p class="mt-1 text-stone-600">Problemas no catálogo</p>
+</div>
+<div class="rounded-xl border border-stone-200 bg-white p-6">
+<p class="text-3xl font-semibold">{{ solution_count }}</p>
+<p class="mt-1 text-stone-600">Soluções para explorar</p>
+</div>
+<div class="rounded-xl border border-stone-200 bg-white p-6">
+<p class="text-3xl font-semibold">{{ organization_count }}</p>
+<p class="mt-1 text-stone-600">Organizações no ecossistema</p>
+</div>
+</section>
+<section class="shell pt-14">
+<div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+<div>
+<p class="text-xs font-bold uppercase tracking-widest text-hub-700">Onde a transformação começa</p>
+<h2 class="mt-2 text-3xl font-semibold">Problemas em aberto</h2>
+</div>
+<a href="{% url 'showcase-list' 'problemas' %}" class="font-semibold text-hub-700">Ver todos →</a>
+</div>
+<div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">{% for item in problems %}{% include 'core/components/card.html' with kind='problemas' %}
+{% empty %}
+<p class="rounded-xl border border-dashed border-stone-300 p-8 text-stone-600 md:col-span-2 lg:col-span-3">Ainda não há problemas em aberto. A equipe pode cadastrar os primeiros desafios na gestão.</p>
+{% endfor %}
+</div>
+</section>
+{% endblock %}
+

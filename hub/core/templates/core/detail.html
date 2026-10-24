@@ -1,0 +1,39 @@
+{% extends 'core/base.html' %}{% block title %}{{ title }} | Hub
+{% endblock %}
+{% block content %}<section class="shell pt-10">
+<nav aria-label="Você está em" class="mb-8 text-sm text-stone-600">
+<a class="underline" href="{% url 'showcase-home' %}">Início</a> / <a class="underline" href="{% url 'showcase-list' kind %}">{{ heading }}</a> / <span aria-current="page">{{ title }}</span>
+</nav>
+<article class="max-w-4xl rounded-2xl border border-stone-200 bg-white p-6 sm:p-10">
+<p class="text-xs font-bold uppercase tracking-widest text-hub-700">{{ heading }}</p>
+<h1 class="mt-4 text-4xl font-semibold tracking-tight">{{ title }}</h1>
+<div class="mt-5 flex flex-wrap gap-2">{% if kind == 'organizacoes' %}<span class="tag">{{ item.get_tipo_display }}</span>
+{% else %}
+<span class="tag">{{ item.categoria.nome|default:'Sem categoria' }}</span>
+{% endif %}
+{% if kind == 'problemas' %}<span class="tag">{{ item.get_status_display }}</span>
+{% endif %}
+</div>
+<div class="mt-8 whitespace-pre-line break-words leading-relaxed text-stone-700">{{ item.descricao|default:'Descrição ainda não informada.' }}</div>
+<div class="mt-8 border-t border-stone-200 pt-6">{% if kind == 'solucoes' %}<p class="text-sm text-stone-600">Organização fornecedora</p>
+<a href="{% url 'showcase-detail' 'organizacoes' item.organizacao_id %}" class="mt-2 inline-block font-semibold text-hub-700 underline">{{ item.organizacao.nome }}</a>{% elif item.municipio %}<p class="text-sm text-stone-600">Município de referência</p>
+<p class="mt-2 font-semibold">{{ item.municipio.nome }} / {{ item.municipio.uf }}</p>
+{% else %}
+<p class="text-sm text-stone-600">Município não informado.</p>
+{% endif %}
+</div>
+</article>{% if kind == 'organizacoes' %}<h2 class="mb-5 mt-10 text-2xl font-semibold">Soluções desta organização</h2>
+<div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">{% for related in solutions %}{% include 'core/components/card.html' with item=related kind='solucoes' %}
+{% empty %}
+<p class="text-stone-600">Ainda não há soluções disponíveis para esta organização.</p>
+{% endfor %}
+</div>
+{% endif %}
+<aside class="mt-8 max-w-4xl rounded-xl bg-hub-50 p-6">
+<h2 class="font-semibold">Uma conexão começa com uma boa avaliação.</h2>
+<p class="mt-2 text-sm leading-relaxed text-stone-600">A equipe registra e acompanha as conexões na gestão. A presença no catálogo não confirma a adequação de uma solução a um problema.</p>
+<a href="{% url 'admin:ecossistema_conexao_changelist' %}" class="mt-4 inline-block font-semibold text-hub-700 underline">Gerenciar conexões →</a>
+</aside>
+</section>
+{% endblock %}
+

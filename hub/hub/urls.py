@@ -17,8 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from core.views import organization_map
+from core import catalog
 
 urlpatterns = [
     path('', organization_map, name='organization-map'),
+    path('vitrine/', catalog.home, name='showcase-home'),
+    path('vitrine/<str:kind>/', catalog.catalog, name='showcase-list'),
+    path('vitrine/<str:kind>/<int:pk>/', catalog.detail, name='showcase-detail'),
     path('admin/', admin.site.urls),
 ]
